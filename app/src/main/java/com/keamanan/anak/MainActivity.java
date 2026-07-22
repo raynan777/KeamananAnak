@@ -1,76 +1,68 @@
 package com.keamanan.anak;
 import android.app.Activity;
-import android.os.Bundle;
-import android.widget.*;
-import android.location.LocationManager;
-import android.location.Location;
-import android.location.LocationListener;
+import android.app.AppOpsManager;
 import android.content.*;
-import android.os.BatteryManager;
-import android.view.View;
-import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.widget.*;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
+import android.location.LocationManager;
+import java.util.*;
+import android.Manifest;
 import androidx.core.app.ActivityCompat;
 
-public class MainActivity extends Activity implements LocationListener {
-    TextView txtBattery, txtLocation, txtInfo;
-    LocationManager lm;
-    String lastLoc = "Belum ada lokasi";
+public class MainActivity extends Activity {
+    SharedPreferences sp;
+    TextView txtApp, txtHist, txtWa, txtLoc;
 
     protected void onCreate(Bundle b){
         super.onCreate(b);
         setContentView(R.layout.activity_main);
-        txtBattery = findViewById(R.id.txtBattery);
-        txtLocation = findViewById(R.id.txtLocation);
-        txtInfo = findViewById(R.id.txtInfo);
+        sp = getSharedPreferences("keamanan_anak", MODE_PRIVATE);
+        txtApp = findViewById(R.id.txtApp);
+        txtHist = findViewById(R.id.txtHistory);
+        txtWa = findViewById(R.id.txtWa);
+        txtLoc = findViewById(R.id.txtLoc);
 
-        // Battery
-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = registerReceiver(null, ifilter);
-        int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : 0;
-        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, 100) : 100;
-        int pct = (int)((level / (float)scale) * 100);
-        int status = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1;
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
-        txtBattery.setText("🔋 Baterai: " + pct + "%" + (isCharging ? " (Charging)" : ""));
-
-        // Device info
-        txtInfo.setText("📱 Info HP:\nModel: " + android.os.Build.MODEL + "\nAndroid: " + android.os.Build.VERSION.RELEASE + "\nID: " + android.os.Build.ID);
-
-        lm = (LocationManager)getSystemService(LOCATION_SERVICE);
-
-        findViewById(R.id.btnGPS).setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){ getLocation(); }
-        });
-        findViewById(R.id.btnSOS).setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                Toast.makeText(MainActivity.this, "🚨 SOS! Lokasi terakhir: " + lastLoc + "\n(Dalam versi full akan kirim SMS ke orang tua)", Toast.LENGTH_LONG).show();
+        findViewById(R.id.btnStartLoc).setOnClickListener(v->{
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.READ_CONTACTS},1);return;
             }
+            startForegroundService(new Intent(this, LocationService.class));
+            Toast.makeText(this,"Lokasi real-time AKTIF (15 menit update)",Toast.LENGTH_LONG).show();
         });
+        findViewById(R.id.btnUsage).setOnClickListener(v->{
+            if(!hasUsageAccess()){ startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)); Toast.makeText(this,"Aktifkan Keamanan Anak",Toast.LENGTH_LONG).show(); return; }
+            loadApps();
+        });
+        findViewById(R.id.btnNotif).setOnClickListener(v-> startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")));
+        findViewById(R.id.btnRefresh).setOnClickListener(v->{loadHistory();loadWa();loadApps();});
+        loadHistory(); loadWa();
     }
-
-    void getLocation(){
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            return;
+    boolean hasUsageAccess(){
+        AppOpsManager appOps = (AppOpsManager)getSystemService(APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName());
+        return mode==AppOpsManager.MODE_ALLOWED;
+    }
+    void loadApps(){
+        UsageStatsManager usm = (UsageStatsManager)getSystemService(USAGE_STATS_SERVICE);
+        long end = System.currentTimeMillis(); long start = end - 24*60*60*1000;
+        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, end);
+        if(stats==null){ txtApp.setText("Belum ada data"); return; }
+        stats.sort((a,b)-> Long.compare(b.getTotalTimeInForeground(), a.getTotalTimeInForeground()));
+        StringBuilder sb = new StringBuilder("APLIKASI DIPAKAI HARI INI:\n");
+        int count=0;
+        for(UsageStats s: stats){
+            if(s.getTotalTimeInForeground()>60*1000 && !s.getPackageName().startsWith("com.keamanan")){
+                long mins = s.getTotalTimeInForeground()/60000;
+                sb.append("• ").append(s.getPackageName()).append(" - ").append(mins).append(" menit\n");
+                if(++count>=15) break;
+            }
         }
-        txtLocation.setText("📍 Mencari lokasi...");
-        try{
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-            Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if(loc != null) updateLoc(loc);
-        }catch(Exception e){ txtLocation.setText("Error: " + e.getMessage()); }
+        txtApp.setText(sb.toString());
     }
-
-    void updateLoc(Location loc){
-        lastLoc = loc.getLatitude() + "," + loc.getLongitude();
-        txtLocation.setText("📍 Lokasi Anak:\nLat: " + loc.getLatitude() + "\nLng: " + loc.getLongitude() + "\nhttps://maps.google.com/?q=" + lastLoc);
-    }
-
-    public void onLocationChanged(Location loc){ updateLoc(loc); }
-    public void onStatusChanged(String s,int i,Bundle b){}
-    public void onProviderEnabled(String s){}
-    public void onProviderDisabled(String s){}
+    void loadHistory(){ txtHist.setText(sp.getString("history","Belum ada riwayat\nKlik START LOKASI REAL-TIME")); txtLoc.setText("Last: "+sp.getString("last_loc","-")); }
+    void loadWa(){ txtWa.setText(sp.getString("wa_log","Belum ada log WA\nAktifkan izin notifikasi dulu")); }
 }
