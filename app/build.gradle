@@ -6,7 +6,7 @@ android {
         applicationId "com.keamanan.anak"
         minSdk 26
         targetSdk 34
-        versionCode 5
+        versionCode 6
         versionName "5.0"
     }
     compileOptions {
@@ -15,6 +15,6 @@ android {
     }
 }
 dependencies {
-    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.core:core:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }

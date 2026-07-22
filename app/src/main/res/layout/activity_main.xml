@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E8F0FE" android:padding="10dp">
 <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
-<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🛡️ KEAMANAN ANAK v5.0\n4 FITUR LENGKAP" android:textSize="20sp" android:textStyle="bold" android:gravity="center" android:textColor="#0D47A1" android:padding="12dp"/>
-<Button android:id="@+id/btnNotif" android:layout_width="match_parent" android:layout_height="45dp" android:text="1. AKTIFKAN IZIN NOTIF WA" android:layout_marginBottom="6dp"/>
-<Button android:id="@+id/btnUsage" android:layout_width="match_parent" android:layout_height="45dp" android:text="2. AKTIFKAN IZIN APLIKASI DIPAKAI" android:layout_marginBottom="6dp"/>
-<Button android:id="@+id/btnStartLoc" android:layout_width="match_parent" android:layout_height="55dp" android:text="3. START LOKASI REAL-TIME (15 MENIT)" android:backgroundTint="#2E7D32" android:textStyle="bold" android:layout_marginBottom="8dp"/>
-<TextView android:id="@+id/txtLoc" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFF" android:padding="8dp" android:text="Last: -" android:textSize="12sp"/>
-<Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="40dp" android:text="🔄 REFRESH SEMUA DATA" android:layout_marginTop="8dp"/>
-<TextView android:text="📱 APLIKASI YANG DIPAKAI:" android:textStyle="bold" android:layout_marginTop="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🛡️ KEAMANAN ANAK v5.0" android:textSize="20sp" android:textStyle="bold" android:gravity="center" android:textColor="#0D47A1" android:padding="12dp"/>
+<Button android:id="@+id/btnNotif" android:layout_width="match_parent" android:layout_height="45dp" android:text="1. IZIN NOTIF WA" android:layout_marginBottom="6dp"/>
+<Button android:id="@+id/btnUsage" android:layout_width="match_parent" android:layout_height="45dp" android:text="2. IZIN APLIKASI DIPAKAI" android:layout_marginBottom="6dp"/>
+<Button android:id="@+id/btnStartLoc" android:layout_width="match_parent" android:layout_height="55dp" android:text="3. START LOKASI REAL-TIME" android:backgroundTint="#2E7D32" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+<TextView android:id="@+id/txtLoc" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFF" android:padding="8dp" android:textSize="12sp"/>
+<Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="40dp" android:text="REFRESH DATA" android:layout_marginTop="8dp"/>
+<TextView android:text="APLIKASI DIPAKAI:" android:textStyle="bold" android:layout_marginTop="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 <TextView android:id="@+id/txtApp" android:layout_width="match_parent" android:layout_height="120dp" android:background="#FFF" android:padding="8dp" android:textSize="11sp"/>
-<TextView android:text="📍 RIWAYAT PERJALANAN:" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:text="RIWAYAT PERJALANAN:" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 <TextView android:id="@+id/txtHistory" android:layout_width="match_parent" android:layout_height="120dp" android:background="#FFF" android:padding="8dp" android:textSize="11sp"/>
-<TextView android:text="💬 LOG WA - NOMOR BARU vs KONTAK:" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:text="LOG WA BARU vs KONTAK:" android:textStyle="bold" android:layout_marginTop="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 <TextView android:id="@+id/txtWa" android:layout_width="match_parent" android:layout_height="150dp" android:background="#FFF" android:padding="8dp" android:textSize="11sp"/>
 </LinearLayout>
 </ScrollView>
