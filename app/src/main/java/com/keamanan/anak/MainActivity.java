@@ -8,9 +8,6 @@ import android.widget.*;
 import android.app.usage.UsageStatsManager;
 import android.app.usage.UsageStats;
 import java.util.*;
-import android.content.pm.PackageManager;
-import android.Manifest;
-import androidx.core.app.ActivityCompat;
 public class MainActivity extends Activity {
     SharedPreferences sp; TextView txtApp, txtHist, txtWa, txtLoc;
     protected void onCreate(Bundle b){
@@ -18,16 +15,14 @@ public class MainActivity extends Activity {
         sp = getSharedPreferences("keamanan_anak", MODE_PRIVATE);
         txtApp=findViewById(R.id.txtApp); txtHist=findViewById(R.id.txtHistory); txtWa=findViewById(R.id.txtWa); txtLoc=findViewById(R.id.txtLoc);
         findViewById(R.id.btnStartLoc).setOnClickListener(v->{
-            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_CONTACTS},1); return;
-            }
             startForegroundService(new Intent(this, LocationService.class));
             Toast.makeText(this,"Lokasi real-time AKTIF",Toast.LENGTH_LONG).show();
         });
         findViewById(R.id.btnUsage).setOnClickListener(v->{
             AppOpsManager am = (AppOpsManager)getSystemService(APP_OPS_SERVICE);
             if(am.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName())!=AppOpsManager.MODE_ALLOWED){
-                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)); return;
+                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+                Toast.makeText(this,"Aktifkan Keamanan Anak di daftar",Toast.LENGTH_LONG).show(); return;
             }
             loadApps();
         });
